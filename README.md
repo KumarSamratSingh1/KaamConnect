@@ -1,196 +1,327 @@
-# 🏠 KaamConnect — Domestic Worker Platform
+# 🏠 KaamConnect — Domestic Services & Home Care Marketplace
 
 > **Tagline:** *Your Home. Your Help. One Connection.*  
-> A premium full-stack MERN marketplace connecting households with trusted, background-verified domestic workers.
-> Think **Rapido × Matrimonial** for home services in India.
+> A production-grade full-stack MERN marketplace connecting households with verified domestic service professionals (cooks, housekeepers, babysitters, eldercare nurses, and home assistants). Designed for reliability, safety, and instant discovery across urban India.
 
-![Stack](https://img.shields.io/badge/Stack-MERN-orange?style=flat-square) ![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square) ![Made in India](https://img.shields.io/badge/Made%20in-India-green?style=flat-square)
-
----
-
-## Demo Credentials
-
-| Role     | Email               | Password     |
-|----------|---------------------|--------------|
-| Customer | customer@demo.com   | Demo@1234    |
-| Worker   | savita@demo.com     | Demo@1234    |
-| Admin    | admin@kaamconnect.com  | Admin@123456 |
+[![MERN Stack](https://img.shields.io/badge/Stack-MERN-10B981?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js%20%2F%20Express-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/atlas)
+[![AI Powered](https://img.shields.io/badge/AI-Google%20Gemini%20Flash-4285F4?style=for-the-badge&logo=google)](https://ai.google.dev/)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 ---
 
-## Tech Stack
+## 1. Project Introduction
 
-**Backend:** Node.js, Express.js, MongoDB, Mongoose, Socket.io, JWT, Cloudinary, Multer, Helmet, Rate Limiter
-
-**Frontend:** React 18, Redux Toolkit, React Router v6, Tailwind CSS, Framer Motion, Recharts, Socket.io-client, Axios
-
-**AI/Integrations:** Google Gemini API, Razorpay (mock), Cloudinary, Google Maps API
-
----
-
-## Quick Start
-
-### 1. Install dependencies
-```bash
-cd backend && npm install
-cd ../frontend && npm install
-```
-
-### 2. Configure environment
-```bash
-cd backend && cp .env.example .env
-# Fill in MONGODB_URI, JWT_SECRET, CLOUDINARY_* keys
-```
-
-### 3. Seed database
-```bash
-cd backend && npm run seed
-```
-
-### 4. Start servers
-```bash
-# Terminal 1
-cd backend && npm run dev    # Runs on :5000
-
-# Terminal 2
-cd frontend && npm start     # Runs on :3000
-```
+**KaamConnect** is a full-featured domestic help and home service platform developed for the **Full Stack Development (FSD II)** semester project. It modernizes the informal household domestic worker sector in India by combining:
+- **Instant Discovery:** Geolocation-indexed search for trusted local help.
+- **AI-Powered Matching:** Plain-language requirement understanding powered by Google Gemini.
+- **Safety & Verification:** Multitiered KYC verification (Aadhaar & Police Clearance badges).
+- **Secure Lifecycle:** Real-time job acceptance, start/complete OTP verification, and escrow payment protection.
 
 ---
 
-## Project Structure
+## 2. Problem Statement
+
+India's domestic services sector employs over 50 million informal workers, yet remains plagued by significant structural challenges:
+1. **Unreliable Discovery:** Households rely predominantly on word-of-mouth or unverified localized agents.
+2. **Safety & Trust Deficit:** Lack of standardized background checks or centralized identity verification.
+3. **Disorganized Job Terms:** Unpredictable wage agreements, absence of transparent scheduling, and lack of accountability.
+4. **Communication Friction:** Absence of real-time messaging, status visibility, or digital records for services rendered.
+
+---
+
+## 3. Project Objectives
+
+- **Democratize Access:** Provide a mobile-responsive web portal where customers can effortlessly locate verified service providers within a customizable geographic radius.
+- **Empower Workers:** Offer domestic helpers a digital resume, verified reputation metrics, schedule controls, and predictable earnings.
+- **Real-Time Responsiveness:** Deliver immediate status updates via WebSockets (Socket.IO) for booking requests, messaging, and service tracking.
+- **Intelligent Assistance:** Integrate Google Gemini AI to translate unstructured customer queries (*"Need an urgent cook who knows South Indian food for mornings"*) into structured database query filters.
+
+---
+
+## 4. Key Features
+
+### 👤 Customer Experience
+* **AI Natural Language Search:** Describe household needs in plain English or Hindi; Gemini AI parses skills, shift timings, budget, and urgency automatically.
+* **Granular Filters:** Filter by 8+ core domestic skills, customer ratings, hourly/monthly salary brackets, and city.
+* **Worker Profile Showcase:** Review verified credentials, years of experience, language proficiencies, badges, and verified customer reviews.
+* **4-Step Booking Wizard:** Intuitive step-by-step booking flow (Service Selection &rarr; Timing & Schedule &rarr; Service Address &rarr; Review & Escrow Payment).
+* **Job Tracking with OTP:** Track real-time progress with secret 4-digit start and end verification OTPs.
+* **Integrated Escrow Checkout:** Razorpay-ready payment pipeline holding funds until satisfactory task completion.
+
+### 🧹 Domestic Helper / Worker Partner Portal
+* **Digital Profile & Onboarding:** 4-step wizard for personal bio, work categories, daily availability schedules, and salary expectations.
+* **KYC Document Uploads:** Cloudinary-backed secure Aadhaar and document verification upload pipeline.
+* **Real-Time Job Notifications:** Instant Socket.IO desktop/mobile audio-visual booking alert toasts with Accept / Decline controls.
+* **Live Availability Toggle:** Instant toggle between `Available` and `Busy` states with live platform-wide broadcast.
+* **Job Execution Controls:** Start and complete tasks using customer-provided OTPs for transparent accountability.
+
+### 🛡️ Administrative Control Center
+* **Executive Metrics Dashboard:** Visualized revenue, booking trends, and user growth charts built with Recharts.
+* **User Management:** Full customer and worker directory with one-click account suspension/reactivation.
+* **Verification Queue:** Review uploaded KYC identity cards and grant official platform verification badges.
+* **Master Booking Monitor:** Complete audit trail of active, completed, and disputed platform bookings.
+
+### 💬 Real-Time Communication & Notifications
+* **In-App Messaging:** Direct customer-worker chat rooms with typing indicators, delivery timestamps, and unread badges.
+* **Push-Style Notifications:** Personal notification feeds for booking status changes, reminders, and payment receipts.
+
+---
+
+## 5. Technology Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend Framework** | React 18, React Router v6, Redux Toolkit (State Management) |
+| **Styling & Design System** | Tailwind CSS v3, Plus Jakarta Sans Typography, Custom CSS Design Tokens |
+| **Icons & Animations** | Lucide React, Framer Motion |
+| **Data Visualization** | Recharts (Revenue, Bookings & Category Distribution) |
+| **Backend Runtime** | Node.js (LTS), Express.js |
+| **Database & ODM** | MongoDB Atlas, Mongoose (with 2dsphere Geospatial Indexing) |
+| **Real-Time Engine** | Socket.IO (v4) with JWT handshake authentication |
+| **Artificial Intelligence** | Google Gemini Flash API (`models/gemini-flash-latest`) |
+| **Media Cloud Storage** | Cloudinary SDK (Document & Profile Image Processing) |
+| **Security & Utilities** | Helmet, Express Rate Limit, Bcrypt.js, JSON Web Tokens (JWT) |
+
+---
+
+## 6. MERN Architecture
 
 ```
-kaamconnect/
+┌────────────────────────────────────────────────────────┐
+│               KaamConnect React 18 Client              │
+│      (Redux Toolkit State • Tailwind CSS • Socket.IO)  │
+└───────────────────────────▲────────────────────────────┘
+                            │ HTTPS / WSS
+┌───────────────────────────▼────────────────────────────┐
+│               Express.js REST & Socket API             │
+│   ┌────────────────────────────────────────────────┐   │
+│   │ Middleware: Helmet, CORS, RateLimiter, JWT Auth │   │
+│   └───────────────────────┬────────────────────────┘   │
+│                           │                            │
+│   ┌───────────────┬───────┴───────┬────────────────┐   │
+│   │ Auth & Users  │ Bookings/OTP  │ Worker Profiles│   │
+│   └───────┬───────┴───────┬───────┴────────┬───────┘   │
+└───────────┼───────────────┼────────────────┼───────────┘
+            │               │                │
+┌───────────▼───────────────▼────────────────▼───────────┐
+│                   Data & Cloud Layer                   │
+│  MongoDB Atlas   │  Google Gemini AI  │   Cloudinary   │
+│ (2dsphere Geos)  │   (NLP Matching)   │ (Media Assets) │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 7. Folder Structure
+
+```
+KaamConnect/
 ├── backend/
-│   ├── config/          db.js, cloudinary.js
-│   ├── controllers/     auth, worker, booking, admin, ai
-│   ├── middleware/       auth (JWT + roles), errorHandler
-│   ├── models/          User, WorkerProfile, Booking, Review, Chat, Notification
-│   ├── routes/          10 route files (REST APIs)
-│   ├── socket/          socketHandler.js (Socket.io events)
-│   ├── utils/           jwt.js, seed.js
-│   └── server.js        Entry point
+│   ├── config/             # DB & Cloudinary storage configuration
+│   │   ├── db.js
+│   │   └── cloudinary.js
+│   ├── controllers/        # Route logic & controllers
+│   │   ├── adminController.js
+│   │   ├── aiController.js
+│   │   ├── authController.js
+│   │   ├── bookingController.js
+│   │   └── workerController.js
+│   ├── middleware/         # Security & JWT authorization guards
+│   ├── models/             # Mongoose schemas (User, WorkerProfile, Booking, Review, Chat)
+│   ├── routes/             # REST endpoints (auth, workers, bookings, admin, ai, chat)
+│   ├── socket/             # Socket.IO event handler
+│   ├── utils/              # JWT helpers & MongoDB seed scripts
+│   ├── .env.example        # Environment variable template
+│   └── server.js           # Server bootstrap & middleware
 │
-└── frontend/
-    ├── src/
-    │   ├── components/  Navbar, WorkerCard, StarRating, BookingStatusBadge, LoadingScreen
-    │   ├── pages/       15 pages across customer/worker/admin/shared/auth
-    │   ├── store/       Redux store + 5 slices
-    │   ├── utils/       api.js (axios+interceptors), socket.js, helpers.js
-    │   └── styles/      Tailwind + custom CSS design tokens
-    └── App.js           Route guards + role-based routing
+├── frontend/
+│   ├── public/             # Static HTML template & KaamConnect metadata
+│   ├── src/
+│   │   ├── components/     # UI components (Navbar, Footer, WorkerCard, Badges)
+│   │   ├── pages/
+│   │   │   ├── admin/      # Admin dashboard, bookings, users, verifications
+│   │   │   ├── auth/       # Login & Register with 1-click demo login
+│   │   │   ├── customer/   # Search, Dashboard, Booking Wizard, Payment, Bookings
+│   │   │   ├── shared/     # Landing page, Worker Profile, Chat, 404
+│   │   │   └── worker/     # Worker Dashboard, Onboarding Wizard, My Jobs
+│   │   ├── store/          # Redux Toolkit store & slices
+│   │   ├── styles/         # Tailwind CSS & design tokens
+│   │   ├── utils/          # Axios interceptors, Socket client helpers
+│   │   └── App.js          # Route definitions & protected route guards
+│   ├── .env.example        # Frontend environment template
+│   └── tailwind.config.js  # Theme configuration (Emerald & Amber tokens)
+│
+├── DEPLOYMENT_GUIDE.md     # Production deployment instructions
+├── README.md               # Project documentation
+└── package.json
 ```
 
 ---
 
-## Core Features
+## 8. Installation Instructions
 
-### For Customers
-- AI-powered requirement parser (plain English → search filters)
-- Smart worker matching with Gemini API scoring
-- Instant / Scheduled / Emergency / Recurring bookings
-- Real-time booking status updates via Socket.io
-- Live chat with workers
-- Razorpay payment integration
-- Rating & review system
+### Prerequisites
+* **Node.js**: v18.0.0 or higher
+* **npm**: v9.0.0 or higher
+* **MongoDB**: A free MongoDB Atlas cluster URI (or local MongoDB 6+)
+* **Cloudinary Account**: Cloud Name, API Key, and API Secret
+* **Google Gemini API Key**: Free API key from Google AI Studio
 
-### For Workers
-- Detailed profile with skills, availability, salary range
-- Aadhaar + background check verification flow
-- Real-time booking notifications (accept/reject)
-- Service start/complete workflow with OTP
-- Earnings & stats dashboard
+### Step-by-Step Setup
 
-### For Admins
-- Analytics dashboard with Recharts (bookings, revenue, service trends)
-- User management (block/unblock)
-- Worker verification workflow
-- All bookings management
-- AI fraud risk monitoring
+```bash
+# 1. Clone repository
+git clone https://github.com/KumarSamratSingh1/KaamConnect.git
+cd KaamConnect
 
----
+# 2. Install backend dependencies
+cd backend
+npm install
 
-## API Highlights
-
-```
-POST   /api/auth/register         → Register (customer/worker)
-POST   /api/auth/login            → Login + JWT tokens
-GET    /api/workers               → List with 10+ filter params
-GET    /api/workers/:id           → Profile + reviews
-POST   /api/bookings              → Create booking
-PATCH  /api/bookings/:id/respond  → Accept/Reject (worker)
-POST   /api/ai/match              → AI-powered worker matching
-POST   /api/ai/parse-requirement  → NLP: plain text → filters
-POST   /api/ai/assistant          → AI chat assistant
-GET    /api/admin/stats           → Analytics aggregation
+# 3. Install frontend dependencies
+cd ../frontend
+npm install
 ```
 
 ---
 
-## MongoDB Schema Highlights
+## 9. Environment Variable Setup
 
-- **User** — GeoJSON coordinates, bcrypt password, refresh tokens, report system
-- **WorkerProfile** — Skills[], rating breakdown, AI fraud score, profile completion, verification badges
-- **Booking** — 10-state lifecycle, statusHistory[], pricing breakdown with GST, GeoJSON service location
-- **Review** — AI sentiment analysis fields, helpful votes, owner response
-- **Conversation + Message** — Real-time chat, read receipts, typing indicators
+### Backend Configuration (`backend/.env`)
+Create a `.env` file in the `backend/` directory referencing `backend/.env.example`:
 
----
+```env
+PORT=5000
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
 
-## Socket.io Events
+# Database
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/kaamconnect?retryWrites=true&w=majority
 
-```
-new_booking_request    Server → Worker room
-booking_response       Server → Customer room
-new_message            Server → Conversation room
-notification           Server → User personal room
-user_typing            Peer broadcast in conversation
-worker_availability    Broadcast to all
-```
+# Authentication
+JWT_SECRET=your_super_secret_jwt_key_min_32_characters_long
+JWT_EXPIRES_IN=7d
+JWT_REFRESH_SECRET=your_super_secret_refresh_token_key_32_chars
+JWT_REFRESH_EXPIRES_IN=30d
 
----
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-## Deployment
+# AI
+GEMINI_API_KEY=your_gemini_api_key
 
-### Backend → Railway / Render
-Set env vars → Deploy from GitHub → Done
-
-### Frontend → Vercel
-```
-Build: npm run build
-Publish: build/
-REACT_APP_API_URL=https://your-backend-url/api
+# Payment (Mock / Test)
+RAZORPAY_KEY_ID=rzp_test_mock_key
+RAZORPAY_KEY_SECRET=rzp_test_mock_secret
+ADMIN_EMAIL=admin@kaamconnect.com
 ```
 
-### MongoDB → Atlas
-Free M0 cluster → Connection string → MONGODB_URI
+### Frontend Configuration (`frontend/.env`)
+Create a `.env` file in the `frontend/` directory:
+
+```env
+REACT_APP_API_URL=/api
+REACT_APP_SOCKET_URL=http://localhost:5000
+```
 
 ---
 
-## Resume Description
+## 10. API Overview
 
-**KaamConnect — Domestic Worker Marketplace** | MERN Stack
-
-Built a full-stack platform for India's domestic service market from scratch, featuring: geo-indexed MongoDB schemas for location-based search, real-time booking lifecycle with Socket.io room broadcasting, AI-powered matching using Google Gemini API for NLP requirement parsing and worker scoring, JWT authentication with automatic refresh and role-based access (customer/worker/admin), Cloudinary integration for document uploads, Razorpay payment flow, and an admin analytics dashboard with MongoDB aggregation pipelines.
-
-**Stack:** MongoDB · Express.js · React.js · Node.js · Socket.io · Redux Toolkit · Tailwind CSS · Framer Motion · Recharts · JWT · Cloudinary · Google Gemini API · Razorpay
-
----
-
-## Future Scope
-
-1. React Native mobile app
-2. Live GPS worker tracking on Google Maps
-3. Video KYC verification
-4. Hindi/regional language UI
-5. Worker skill certification courses
-6. ML-based demand prediction by area
-7. Monthly subscription plans
-8. Worker accident insurance integration
-
----
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/health` | Public | System health and version check |
+| `POST` | `/api/auth/register` | Public | Register customer or worker |
+| `POST` | `/api/auth/login` | Public | Authenticate user & return JWT tokens |
+| `GET` | `/api/workers` | Public | Search workers with skills, rating, city filters |
+| `GET` | `/api/workers/:id` | Public | View detailed worker profile & reviews |
+| `PATCH` | `/api/workers/availability` | Worker | Toggle worker availability (`available`/`busy`) |
+| `POST` | `/api/bookings` | Customer | Create booking reservation |
+| `GET` | `/api/bookings/my` | Authenticated | Retrieve customer or worker booking history |
+| `PATCH` | `/api/bookings/:id/respond`| Worker | Accept or decline booking request |
+| `PATCH` | `/api/bookings/:id/start` | Worker | Start job execution with OTP verification |
+| `PATCH` | `/api/bookings/:id/complete`| Worker | Complete task execution |
+| `POST` | `/api/payments/create-order`| Customer | Generate Razorpay escrow order |
+| `POST` | `/api/ai/parse-requirement` | Public | Gemini NLP requirement parser |
+| `GET` | `/api/admin/stats` | Admin | Aggregate dashboard business intelligence |
+| `GET` | `/api/admin/users` | Admin | Administrative user directory |
+| `GET` | `/api/admin/bookings` | Admin | Administrative master bookings registry |
 
 ---
 
-*Made with ❤️ in India 🇮🇳*
+## 11. Demo Credentials
+
+The platform includes pre-configured demo accounts for fast evaluations:
+
+| Portal | Email | Password | Role Features |
+| :--- | :--- | :--- | :--- |
+| **Customer** | `customer@demo.com` | `Demo@123456` | Search help, book services, mock escrow payment |
+| **Worker** | `worker@demo.com` | `Demo@123456` | Toggle availability, accept bookings, complete jobs |
+| **Admin** | `admin@grihseva.com` | `Admin@123456` | Platform analytics, user control, verification queue |
+
+> **Tip:** The Login Page features **1-Click Autofill Buttons** to instantly populate credentials for any role during presentations.
+
+---
+
+## 12. Screenshots Section
+
+| Customer Landing Page & Search | Worker Profile & Verification |
+| :---: | :---: |
+| *Hero section with instant Gemini AI NLP requirement search bar* | *Detailed experience metrics, verified badges, and reviews* |
+
+| Customer Booking Wizard | Admin Analytics Dashboard |
+| :---: | :---: |
+| *4-step wizard with service scheduling and address picker* | *Interactive Recharts revenue, booking status, and category trends* |
+
+---
+
+## 13. Local Execution Instructions
+
+### Run Backend
+```bash
+cd backend
+npm run dev
+# Server listening on http://localhost:5000
+```
+
+### Run Frontend
+```bash
+cd frontend
+npm start
+# Client running on http://localhost:3000
+```
+
+---
+
+## 14. Deployment Instructions
+
+### Backend (Render Web Service)
+1. Link your GitHub repository (`KumarSamratSingh1/KaamConnect`).
+2. Set Root Directory: `backend`
+3. Build Command: `npm install`
+4. Start Command: `node server.js`
+5. Configure environment variables in the Render dashboard:
+   - `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CLOUDINARY_*`, `GEMINI_API_KEY`, `CLIENT_URL` (your Vercel URL).
+
+### Frontend (Vercel)
+1. Import repository on Vercel.
+2. Set Root Directory: `frontend`
+3. Framework Preset: `Create React App`
+4. Build Command: `npm run build`
+5. Environment Variables:
+   - `REACT_APP_API_URL`: `https://<your-render-backend>.onrender.com/api`
+   - `REACT_APP_SOCKET_URL`: `https://<your-render-backend>.onrender.com`
+
+---
+
+## 15. Acknowledgements
+
+This academic semester project was developed and expanded upon the architectural foundation of the open-source [grihseva](https://github.com/ADITYACHAUGAONKAR/grihseva) repository by Aditya Chaugaonkar. The project has undergone a complete frontend redesign, re-architecture of branding to KaamConnect, responsive UI upgrades, production deployment enhancements, and full functional testing for the Full Stack Development (FSD II) semester curriculum.
+
+---
+
+*KaamConnect — Built with ❤️ for India 🇮🇳*

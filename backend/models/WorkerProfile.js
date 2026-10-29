@@ -118,7 +118,6 @@ const workerProfileSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-workerProfileSchema.index({ user: 1 });
 workerProfileSchema.index({ skills: 1 });
 workerProfileSchema.index({ 'rating.average': -1 });
 workerProfileSchema.index({ verificationStatus: 1 });

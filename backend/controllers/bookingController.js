@@ -20,27 +20,47 @@ const createBooking = async (req, res, next) => {
       serviceLocation, specialInstructions, urgency, recurringPattern
     } = req.body;
 
-    const worker = await User.findOne({ _id: workerId, role: 'worker', isActive: true });
+    let worker = await User.findOne({ _id: workerId, role: 'worker', isActive: true });
+    let workerProfile = null;
+    if (!worker) {
+      workerProfile = await WorkerProfile.findById(workerId);
+      if (workerProfile) {
+        worker = await User.findOne({ _id: workerProfile.user, role: 'worker', isActive: true });
+      }
+    } else {
+      workerProfile = await WorkerProfile.findOne({ user: worker._id });
+    }
     if (!worker) return res.status(404).json({ success: false, message: 'Worker not found.' });
-
-    const workerProfile = await WorkerProfile.findOne({ user: workerId });
     if (!workerProfile) return res.status(404).json({ success: false, message: 'Worker profile not found.' });
 
     if (workerProfile.availabilityStatus === 'busy') {
       return res.status(400).json({ success: false, message: 'Worker is currently busy.' });
     }
 
+    // Normalize services format
+    const normalizedServices = Array.isArray(services)
+      ? services.map(s => typeof s === 'string' ? { name: s, price: 1000 } : s)
+      : [{ name: primaryService || 'cooking', price: 1000 }];
+
     // Calculate pricing
-    const basePrice = services.reduce((sum, s) => sum + (s.price || 0), 0);
+    const basePrice = (req.body.pricing && req.body.pricing.baseAmount) || normalizedServices.reduce((sum, s) => sum + (s.price || 0), 0);
     const platformFee = Math.round(basePrice * 0.1); // 10% platform fee
     const tax = Math.round(basePrice * 0.18); // 18% GST
     const totalAmount = basePrice + platformFee + tax;
 
+    let formattedLocation = serviceLocation || {};
+    if (!formattedLocation.coordinates || !Array.isArray(formattedLocation.coordinates.coordinates)) {
+      formattedLocation = {
+        ...formattedLocation,
+        coordinates: { type: 'Point', coordinates: [77.4126, 23.2599] }
+      };
+    }
+
     const booking = await Booking.create({
       customer: req.user._id,
-      worker: workerId,
+      worker: worker._id,
       workerProfile: workerProfile._id,
-      services,
+      services: normalizedServices,
       primaryService,
       type,
       urgency: urgency || 'normal',

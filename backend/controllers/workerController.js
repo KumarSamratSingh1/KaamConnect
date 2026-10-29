@@ -71,17 +71,25 @@ const getWorkers = async (req, res, next) => {
 // @route GET /api/workers/:id
 const getWorker = async (req, res, next) => {
   try {
-    const worker = await User.findOne({
+    let worker = await User.findOne({
       _id: req.params.id,
       role: 'worker',
       isActive: true
     }).select('-password -refreshToken');
 
+    let profile = null;
+    if (!worker) {
+      profile = await WorkerProfile.findById(req.params.id);
+      if (profile) {
+        worker = await User.findOne({ _id: profile.user, role: 'worker', isActive: true }).select('-password -refreshToken');
+      }
+    } else {
+      profile = await WorkerProfile.findOne({ user: worker._id });
+    }
+
     if (!worker) {
       return res.status(404).json({ success: false, message: 'Worker not found.' });
     }
-
-    const profile = await WorkerProfile.findOne({ user: worker._id });
     const reviews = await Review.find({ reviewee: worker._id, isApproved: true })
       .populate('reviewer', 'name profilePhoto')
       .sort({ createdAt: -1 })

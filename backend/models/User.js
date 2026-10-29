@@ -71,7 +71,6 @@ const userSchema = new mongoose.Schema({
 // Geo index
 userSchema.index({ 'location.coordinates': '2dsphere' });
 userSchema.index({ email: 1, role: 1 });
-userSchema.index({ phone: 1 });
 
 // Hash password
 userSchema.pre('save', async function (next) {

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
 const bookingSchema = new mongoose.Schema({
-  bookingId: { type: String, default: () => `GS${Date.now().toString(36).toUpperCase()}`, unique: true },
+  bookingId: { type: String, default: () => `KC${Date.now().toString(36).toUpperCase()}`, unique: true },
 
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   worker: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -47,7 +47,7 @@ const bookingSchema = new mongoose.Schema({
     pincode: String,
     coordinates: {
       type: { type: String, enum: ['Point'], default: 'Point' },
-      coordinates: [Number]
+      coordinates: { type: [Number], default: [0, 0] }
     },
     landmark: String
   },
@@ -122,7 +122,6 @@ const bookingSchema = new mongoose.Schema({
 bookingSchema.index({ customer: 1, status: 1 });
 bookingSchema.index({ worker: 1, status: 1 });
 bookingSchema.index({ status: 1, createdAt: -1 });
-bookingSchema.index({ bookingId: 1 });
-bookingSchema.index({ 'serviceLocation.coordinates': '2dsphere' });
+bookingSchema.index({ 'serviceLocation.coordinates': '2dsphere' }, { sparse: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);
