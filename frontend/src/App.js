@@ -25,6 +25,7 @@ import AdminBookings from './pages/admin/AdminBookings';
 import AdminVerifications from './pages/admin/AdminVerifications';
 import NotFound from './pages/shared/NotFound';
 import LoadingScreen from './components/common/LoadingScreen';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Route Guards
 const ProtectedRoute = ({ children, roles }) => {
@@ -106,17 +107,19 @@ function AppRoutes() {
 export default function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <AppRoutes />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: { borderRadius: '12px', fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '14px' },
-            success: { iconTheme: { primary: '#059669', secondary: '#fff' } },
-          }}
-        />
-      </BrowserRouter>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: { borderRadius: '12px', fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '14px' },
+              success: { iconTheme: { primary: '#059669', secondary: '#fff' } },
+            }}
+          />
+        </BrowserRouter>
+      </ErrorBoundary>
     </Provider>
   );
 }

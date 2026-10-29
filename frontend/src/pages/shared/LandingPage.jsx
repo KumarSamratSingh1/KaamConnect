@@ -5,7 +5,7 @@ import {
   Search, Star, ShieldCheck, Zap, CheckCircle2, Award,
   Users, TrendingUp, MapPin, ArrowRight, Sparkles, Clock,
   Lock, HeartHandshake, ChevronRight, UserCheck, Check,
-  Bot, HelpCircle, ArrowUpRight
+  Bot, HelpCircle, ArrowUpRight, Briefcase
 } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
