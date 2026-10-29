@@ -1,9 +1,34 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+export const getApiBaseUrl = () => {
+  const envUrl = process.env.REACT_APP_API_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1' &&
+      envUrl.includes('localhost')
+    ) {
+      return 'https://kaamconnect-dhbs.onrender.com/api';
+    }
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
+  ) {
+    return 'https://kaamconnect-dhbs.onrender.com/api';
+  }
+
+  return 'http://localhost:5000/api';
+};
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api',
-  timeout: 15000,
+  baseURL: getApiBaseUrl(),
+  timeout: 20000,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -52,7 +77,7 @@ api.interceptors.response.use(
       }
 
       try {
-        const res = await axios.post('/api/auth/refresh', { refreshToken });
+        const res = await axios.post(`${getApiBaseUrl()}/auth/refresh`, { refreshToken });
         const { accessToken, refreshToken: newRefresh } = res.data.data;
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', newRefresh);

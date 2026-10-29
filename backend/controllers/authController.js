@@ -5,7 +5,7 @@ const { validationResult } = require('express-validator');
 
 // @desc Register new user
 // @route POST /api/auth/register
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
