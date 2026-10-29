@@ -83,7 +83,7 @@ export default function PaymentPage() {
                 <div className="flex justify-between">
                   <span className="text-stone-500">Booking Reference</span>
                   <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
-                    {bookingId ? `GS-${bookingId.slice(-6).toUpperCase()}` : 'CONFIRMING'}
+                    {bookingId ? `KC-${bookingId.slice(-6).toUpperCase()}` : 'CONFIRMING'}
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-stone-200/60 dark:border-stone-700">

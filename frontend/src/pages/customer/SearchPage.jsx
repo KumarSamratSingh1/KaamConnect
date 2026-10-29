@@ -16,17 +16,19 @@ export default function SearchPage() {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const { list: workers, loading, pagination, filters } = useSelector(s => s.workers);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('q') || '');
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
-  const [aiQuery, setAiQuery] = useState('');
+  const [aiQuery, setAiQuery] = useState(searchParams.get('ai') || '');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiParsed, setAiParsed] = useState(null);
 
   const doSearch = useCallback(() => {
+    const cityParam = searchParams.get('city');
     dispatch(fetchWorkers({
       ...filters,
-      search,
+      search: search || searchParams.get('q') || '',
+      city: cityParam || filters.city || '',
       page,
       limit: 12,
       skills: filters.skills?.join(',') || searchParams.get('service') || searchParams.get('skills')
@@ -35,8 +37,28 @@ export default function SearchPage() {
 
   useEffect(() => {
     const serviceParam = searchParams.get('service');
-    if (serviceParam && (!filters.skills || !filters.skills.includes(serviceParam))) {
-      dispatch(setFilters({ skills: [serviceParam] }));
+    const aiParam = searchParams.get('ai');
+    const cityParam = searchParams.get('city');
+
+    if (aiParam && !aiParsed) {
+      setAiQuery(aiParam);
+      // Auto parse AI query
+      api.post('/ai/parse-requirement', { text: aiParam })
+        .then((res) => {
+          const parsed = res.data?.data;
+          if (parsed) {
+            setAiParsed(parsed);
+            dispatch(setFilters({
+              skills: parsed.services || [],
+              workType: parsed.workType || '',
+              maxSalary: parsed.budget || '',
+              city: cityParam || parsed.location || ''
+            }));
+          }
+        })
+        .catch(() => doSearch());
+    } else if (serviceParam && (!filters.skills || !filters.skills.includes(serviceParam))) {
+      dispatch(setFilters({ skills: [serviceParam], city: cityParam || filters.city || '' }));
     } else {
       doSearch();
     }

@@ -135,6 +135,19 @@ export default function CustomerBookings() {
                           </span>
                         )}
                       </div>
+
+                      {/* Job Start OTP Pill for Customer */}
+                      {b.startOtp && ['accepted', 'confirmed', 'in_progress'].includes(b.status) && (
+                        <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300">
+                          <span className="font-bold">Job Start OTP:</span>
+                          <span className="font-mono font-extrabold text-sm tracking-wider px-2 py-0.5 rounded-md bg-white dark:bg-stone-900 border border-emerald-300 dark:border-emerald-700 shadow-sm text-emerald-700 dark:text-emerald-400">
+                            {b.startOtp}
+                          </span>
+                          <span className="text-[11px] text-stone-500 dark:text-stone-400 hidden sm:inline">
+                            (Share with worker on arrival)
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
