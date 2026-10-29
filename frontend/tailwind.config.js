@@ -5,6 +5,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        stone: {
+          750: '#36312f',
+          850: '#24211f',
+        },
         primary: {
           50: '#ecfdf5',
           100: '#d1fae5',

@@ -76,7 +76,7 @@
     @apply inline-flex items-center justify-center gap-2 bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100/90 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 font-medium px-4 py-2.5 rounded-xl transition-all duration-150 shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:opacity-50 text-sm;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border border-stone-200/90 dark:border-stone-700 font-medium px-4 py-2.5 rounded-xl transition-all duration-150 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:border-stone-300 dark:hover:border-stone-600 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:opacity-50 text-sm;
+    @apply inline-flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-850 text-stone-700 dark:text-stone-200 border border-stone-200/90 dark:border-stone-750 font-medium px-4 py-2.5 rounded-xl transition-all duration-150 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:border-stone-300 dark:hover:border-stone-600 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:opacity-50 text-sm;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100/70 dark:hover:bg-stone-800/60 font-medium px-3.5 py-2 rounded-xl transition-all duration-150 text-sm;
@@ -95,7 +95,7 @@
 
   /* Inputs */
   .input {
-    @apply w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all duration-150 placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-[0_1px_2px_rgba(0,0,0,0.03)];
+    @apply w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-750 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all duration-150 placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-[0_1px_2px_rgba(0,0,0,0.03)];
   }
 
   /* Badges - Subtle Pill Aesthetics */
