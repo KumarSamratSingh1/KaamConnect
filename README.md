@@ -7,7 +7,23 @@
 [![Node.js](https://img.shields.io/badge/Backend-Node.js%20%2F%20Express-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/atlas)
 [![AI Powered](https://img.shields.io/badge/AI-Google%20Gemini%20Flash-4285F4?style=for-the-badge&logo=google)](https://ai.google.dev/)
+[![Project Report](https://img.shields.io/badge/Academic%20Report-PDF%20%26%20DOCX-blueviolet?style=for-the-badge)](KaamConnect_Project_Report/KaamConnect_Project_Report.pdf)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
+---
+
+### 📄 Academic Project Report & Documentation
+The complete, university-formatted project report strictly following official B.E. CSE formatting guidelines is available in the repository:
+- 📕 **Official Report PDF:** [`KaamConnect_Project_Report.pdf`](KaamConnect_Project_Report/KaamConnect_Project_Report.pdf)
+- 📝 **Editable Word Document:** [`KaamConnect_Project_Report.docx`](KaamConnect_Project_Report/KaamConnect_Project_Report.docx)
+- 📑 **Complete Markdown Source:** [`KaamConnect_Project_Report_Source.md`](KaamConnect_Project_Report/KaamConnect_Project_Report_Source.md)
+- 📊 **Architecture Diagrams & Production Screenshots:** [`KaamConnect_Project_Report/screenshots/`](KaamConnect_Project_Report/screenshots/)
+
+**Project Team (Chandigarh University — B.E. Computer Science & Engineering):**
+- **Kumar Samrat Singh** (UID: 24BCS10320)
+- **Sahil Kumar** (UID: 24BCS11637)
+- **Krish Sonu Kumar** (UID: 24BCS11661)  
+*Supervised by:* **Er. Venkatesh K** | *Head of Department:* **Dr. Sandeep Singh Kang**
 
 ---
 
