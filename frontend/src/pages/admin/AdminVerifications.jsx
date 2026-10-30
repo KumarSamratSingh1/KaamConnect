@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShieldCheck, CheckCircle2, XCircle, ArrowLeft, FileText, User } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, XCircle, ArrowLeft, FileText, User, ExternalLink } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 import api from '../../utils/api';
@@ -16,7 +16,7 @@ export default function AdminVerifications() {
     setLoading(true);
     api.get('/admin/verifications')
       .then(r => {
-        setProfiles(r.data.data);
+        setProfiles(r.data.data || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -55,7 +55,7 @@ export default function AdminVerifications() {
               KYC & Verification Queue ({profiles.length})
             </h1>
             <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
-              Review government Aadhaar documents, physical address filings, and background checks.
+              Review government Aadhaar documents, Word resumes, and verification filings.
             </p>
           </div>
         </div>
@@ -107,13 +107,33 @@ export default function AdminVerifications() {
                       Submitted: {formatDate(p.createdAt)} • Experience: {p.experience || 0} years • Skills: {p.skills?.join(', ') || 'General Domestic'}
                     </p>
 
+                    {/* Uploaded Documents List */}
                     <div className="flex gap-2 mt-2.5 flex-wrap">
-                      <span className="badge badge-emerald text-[11px] font-semibold">
-                        <FileText size={11} /> Aadhaar Submitted
-                      </span>
-                      <span className="badge badge-stone text-[11px] font-semibold">
-                        <FileText size={11} /> Address Proof
-                      </span>
+                      {p.documents && p.documents.length > 0 ? (
+                        p.documents.map((d, idx) => (
+                          <a
+                            key={idx}
+                            href={d.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 transition-all shadow-xs"
+                            title={`Open ${d.name || d.type}`}
+                          >
+                            <FileText size={13} className="text-emerald-600" />
+                            <span className="capitalize">{d.name || `${d.type?.replace('_', ' ')} Document`}</span>
+                            <ExternalLink size={11} className="opacity-70" />
+                          </a>
+                        ))
+                      ) : (
+                        <>
+                          <span className="badge badge-emerald text-[11px] font-semibold">
+                            <FileText size={11} /> Aadhaar Record
+                          </span>
+                          <span className="badge badge-stone text-[11px] font-semibold">
+                            <FileText size={11} /> Address Proof
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

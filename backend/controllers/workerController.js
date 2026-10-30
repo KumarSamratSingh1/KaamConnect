@@ -104,6 +104,20 @@ const getWorker = async (req, res, next) => {
   }
 };
 
+// @desc Get current worker profile
+// @route GET /api/workers/my/profile
+const getMyProfile = async (req, res, next) => {
+  try {
+    let profile = await WorkerProfile.findOne({ user: req.user._id });
+    if (!profile) {
+      profile = await WorkerProfile.create({ user: req.user._id });
+    }
+    return res.json({ success: true, data: profile });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc Update worker profile
 // @route PUT /api/workers/profile
 const updateProfile = async (req, res, next) => {
@@ -115,9 +129,9 @@ const updateProfile = async (req, res, next) => {
       preferredAreas, services, references
     } = req.body;
 
-    const profile = await WorkerProfile.findOne({ user: req.user._id });
+    let profile = await WorkerProfile.findOne({ user: req.user._id });
     if (!profile) {
-      return res.status(404).json({ success: false, message: 'Worker profile not found.' });
+      profile = await WorkerProfile.create({ user: req.user._id });
     }
 
     if (skills) profile.skills = skills;
@@ -135,7 +149,9 @@ const updateProfile = async (req, res, next) => {
     if (services) profile.services = services;
     if (references) profile.references = references;
 
-    profile.calculateCompletion();
+    if (typeof profile.calculateCompletion === 'function') {
+      profile.calculateCompletion();
+    }
     await profile.save();
 
     return res.json({ success: true, message: 'Profile updated!', data: profile });
@@ -187,24 +203,84 @@ const uploadPhoto = async (req, res, next) => {
   }
 };
 
-// @desc Upload verification document
+// @desc Upload verification document (PDF, Word, Images)
 // @route POST /api/workers/document
 const uploadDocument = async (req, res, next) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No document uploaded.' });
+      return res.status(400).json({ success: false, message: 'No document file received.' });
     }
 
-    const profile = await WorkerProfile.findOne({ user: req.user._id });
-    profile.documents.push({
-      type: req.body.docType || 'aadhaar',
-      url: req.file.path,
-      publicId: req.file.filename
-    });
+    let profile = await WorkerProfile.findOne({ user: req.user._id });
+    if (!profile) {
+      profile = await WorkerProfile.create({ user: req.user._id });
+    }
+
+    const docType = req.body.docType || 'aadhaar';
+    const originalName = req.file.originalname || 'Document';
+    const fileUrl = req.file.path || req.file.secure_url || req.file.url;
+    const publicId = req.file.filename || req.file.public_id || ('doc_' + Date.now());
+
+    if (!profile.documents) {
+      profile.documents = [];
+    }
+
+    const docData = {
+      type: docType,
+      url: fileUrl,
+      publicId: publicId,
+      name: originalName,
+      uploadedAt: new Date()
+    };
+
+    const existingIndex = profile.documents.findIndex(d => d.type === docType);
+    if (existingIndex > -1) {
+      profile.documents[existingIndex] = docData;
+    } else {
+      profile.documents.push(docData);
+    }
+
     profile.verificationStatus = 'under_review';
+    if (typeof profile.calculateCompletion === 'function') {
+      profile.calculateCompletion();
+    }
     await profile.save();
 
-    return res.json({ success: true, message: 'Document submitted for review.' });
+    return res.json({
+      success: true,
+      message: `${originalName} uploaded successfully and submitted for review!`,
+      data: {
+        document: docData,
+        documents: profile.documents,
+        profileCompletion: profile.profileCompletion
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Delete verification document
+// @route DELETE /api/workers/document/:type
+const deleteDocument = async (req, res, next) => {
+  try {
+    const profile = await WorkerProfile.findOne({ user: req.user._id });
+    if (!profile) {
+      return res.status(404).json({ success: false, message: 'Worker profile not found.' });
+    }
+
+    const { type } = req.params;
+    profile.documents = (profile.documents || []).filter(d => d.type !== type);
+    if (typeof profile.calculateCompletion === 'function') {
+      profile.calculateCompletion();
+    }
+    await profile.save();
+
+    return res.json({
+      success: true,
+      message: 'Document removed.',
+      data: { documents: profile.documents }
+    });
   } catch (error) {
     next(error);
   }
@@ -230,4 +306,14 @@ const getFeatured = async (req, res, next) => {
   }
 };
 
-module.exports = { getWorkers, getWorker, updateProfile, updateAvailability, uploadPhoto, uploadDocument, getFeatured };
+module.exports = {
+  getWorkers,
+  getWorker,
+  getMyProfile,
+  updateProfile,
+  updateAvailability,
+  uploadPhoto,
+  uploadDocument,
+  deleteDocument,
+  getFeatured
+};

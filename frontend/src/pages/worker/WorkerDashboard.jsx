@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Star, Briefcase, CheckCircle2, Clock, TrendingUp, Bell, Zap,
-  ShieldCheck, AlertCircle, ArrowRight
+  ShieldCheck, AlertCircle, ArrowRight, ExternalLink
 } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
@@ -134,13 +134,32 @@ export default function WorkerDashboard() {
                 style={{ width: `${profile?.profileCompletion || 70}%` }}
               />
             </div>
-            <Link
-              to="/worker/onboarding"
-              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
-            >
-              <span>Update KYC Documents & Experience Details</span>
-              <ArrowRight size={13} />
-            </Link>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <Link
+                to="/worker/onboarding"
+                className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+              >
+                <span>Upload KYC Documents (PDF/Word) & Experience Details</span>
+                <ArrowRight size={13} />
+              </Link>
+              {profile?.documents?.length > 0 && (
+                <div className="flex items-center gap-2 flex-wrap text-xs text-stone-500">
+                  <span className="font-bold text-stone-700 dark:text-stone-300">Files:</span>
+                  {profile.documents.map((d, idx) => (
+                    <a
+                      key={idx}
+                      href={d.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline font-semibold"
+                    >
+                      <span className="capitalize">{d.name || d.type}</span>
+                      <ExternalLink size={10} />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

@@ -18,13 +18,19 @@ const profileStorage = new CloudinaryStorage({
   },
 });
 
-// Document storage (Aadhaar, etc.)
+// Document storage (Aadhaar, Word resumes, PDFs, address proof, etc.)
 const documentStorage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: 'kaamconnect/documents',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
-    resource_type: 'auto',
+  params: async (req, file) => {
+    const ext = (file.originalname.split('.').pop() || '').toLowerCase();
+    const isRaw = ['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(ext);
+    const sanitized = file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    return {
+      folder: 'kaamconnect/documents',
+      resource_type: isRaw ? 'raw' : 'image',
+      format: ext || undefined,
+      public_id: `${Date.now()}-${sanitized}`
+    };
   },
 });
 
@@ -35,7 +41,14 @@ const uploadProfile = multer({
 
 const uploadDocument = multer({
   storage: documentStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(jpg|jpeg|png|webp|pdf|doc|docx)$/i;
+    if (!file.originalname.match(allowed)) {
+      return cb(new Error('Only PDF, Word (.doc, .docx), and Image (JPG, PNG, WEBP) files are supported.'), false);
+    }
+    cb(null, true);
+  }
 });
 
 const deleteFromCloudinary = async (publicId) => {

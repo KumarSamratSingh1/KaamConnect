@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
-import { ChevronRight, Upload, CheckCircle2, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
+import {
+  ChevronRight,
+  Upload,
+  CheckCircle2,
+  ShieldCheck,
+  ArrowRight,
+  Loader2,
+  FileText,
+  Trash2,
+  ExternalLink
+} from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 import { SKILLS, LANGUAGES, WORK_TYPES } from '../../utils/helpers';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
-const STEPS = ['Skills & Experience', 'Availability', 'Compensation', 'KYC Verification'];
+const STEPS = ['Skills & Experience', 'Availability', 'Compensation', 'KYC & Document Upload'];
 
 export default function WorkerOnboarding() {
   const dispatch = useDispatch();
@@ -29,7 +39,43 @@ export default function WorkerOnboarding() {
     languagesKnown: ['Hindi'],
     preferredAreas: []
   });
+
+  const [uploadedDocs, setUploadedDocs] = useState({});
+  const [uploadingKey, setUploadingKey] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Pre-fill profile and uploaded documents if they exist
+    api.get('/workers/my/profile')
+      .then(res => {
+        const p = res.data?.data;
+        if (p) {
+          setForm(f => ({
+            ...f,
+            skills: p.skills || f.skills,
+            experience: p.experience !== undefined ? p.experience : f.experience,
+            experienceDescription: p.experienceDescription || f.experienceDescription,
+            workType: p.workType || f.workType,
+            shifts: p.shifts?.length ? p.shifts : f.shifts,
+            workDays: p.workDays?.length ? p.workDays : f.workDays,
+            startTime: p.startTime || f.startTime,
+            endTime: p.endTime || f.endTime,
+            expectedSalary: p.expectedSalary?.min ? p.expectedSalary : f.expectedSalary,
+            serviceRadius: p.serviceRadius || f.serviceRadius,
+            languagesKnown: p.languagesKnown?.length ? p.languagesKnown : f.languagesKnown
+          }));
+
+          if (p.documents && Array.isArray(p.documents)) {
+            const docMap = {};
+            p.documents.forEach(d => {
+              if (d.type) docMap[d.type] = d;
+            });
+            setUploadedDocs(docMap);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const toggleSkill = (id) =>
     setForm(f => ({
@@ -42,6 +88,61 @@ export default function WorkerOnboarding() {
       ...f,
       languagesKnown: f.languagesKnown.includes(l) ? f.languagesKnown.filter(x => x !== l) : [...f.languagesKnown, l]
     }));
+
+  const handleFileUpload = async (docKey, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedExtensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.webp'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowedExtensions.includes(ext)) {
+      toast.error('Supported formats: PDF (.pdf), Word (.doc, .docx), and Images (.jpg, .png, .webp)');
+      return;
+    }
+
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error('File size exceeds the 25MB limit.');
+      return;
+    }
+
+    setUploadingKey(docKey);
+    const formData = new FormData();
+    formData.append('document', file);
+    formData.append('docType', docKey);
+
+    try {
+      const res = await api.post('/workers/document', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const returnedDoc = res.data?.data?.document || {
+        type: docKey,
+        name: file.name,
+        url: res.data?.data?.document?.url
+      };
+      setUploadedDocs(prev => ({ ...prev, [docKey]: returnedDoc }));
+      toast.success(`${file.name} uploaded successfully! 🎉`);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Document upload failed. Please verify the file and try again.';
+      toast.error(msg);
+    } finally {
+      setUploadingKey(null);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveDoc = async (docKey) => {
+    try {
+      await api.delete(`/workers/document/${docKey}`);
+      setUploadedDocs(prev => {
+        const next = { ...prev };
+        delete next[docKey];
+        return next;
+      });
+      toast.success('Document removed.');
+    } catch (err) {
+      toast.error('Failed to remove document.');
+    }
+  };
 
   const handleSave = async () => {
     setLoading(true);
@@ -311,50 +412,147 @@ export default function WorkerOnboarding() {
             </div>
           )}
 
-          {/* STEP 3: KYC VERIFICATION */}
+          {/* STEP 3: KYC & DOCUMENT UPLOAD */}
           {step === 3 && (
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-bold text-stone-900 dark:text-white mb-1">
-                  4. Government ID & Trust Verification
+                  4. Government ID & Document Verification
                 </h2>
                 <p className="text-xs text-stone-500">
-                  Documents are safely stored and reviewed by our security team before verification badges are unlocked.
+                  Upload your Aadhaar, Resume, or Address proof as PDF, Word (.doc, .docx), or Image files.
                 </p>
               </div>
 
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 {[
-                  { key: 'aadhaar', label: 'Aadhaar Card (Front & Back)', icon: '🪪' },
-                  { key: 'photo_id', label: 'Recent Passport Photograph', icon: '📸' },
-                  { key: 'address_proof', label: 'Local Address Proof / Electricity Bill', icon: '🏠' }
-                ].map((doc) => (
-                  <div
-                    key={doc.key}
-                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900/50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{doc.icon}</span>
-                      <div>
-                        <p className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-200">
-                          {doc.label}
-                        </p>
-                        <p className="text-[11px] text-stone-400">JPG, PNG or PDF (Max 10MB)</p>
+                  {
+                    key: 'aadhaar',
+                    label: 'Aadhaar Card / Government ID',
+                    icon: '🪪',
+                    desc: 'Aadhaar, Voter ID, or Driving License'
+                  },
+                  {
+                    key: 'resume',
+                    label: 'Resume / Experience Certificate',
+                    icon: '📄',
+                    desc: 'Word document (.docx, .doc) or PDF resume'
+                  },
+                  {
+                    key: 'address_proof',
+                    label: 'Address Proof / Utility Bill',
+                    icon: '🏠',
+                    desc: 'Electricity bill, rent agreement, or ration card'
+                  },
+                  {
+                    key: 'photo_id',
+                    label: 'Recent Passport Photograph',
+                    icon: '📸',
+                    desc: 'Clear front-facing headshot'
+                  }
+                ].map((doc) => {
+                  const uploaded = uploadedDocs[doc.key];
+                  const isUploading = uploadingKey === doc.key;
+
+                  return (
+                    <div
+                      key={doc.key}
+                      className={`p-4 rounded-2xl border transition-all ${
+                        uploaded
+                          ? 'border-emerald-300 bg-emerald-50/40 dark:bg-emerald-950/20 dark:border-emerald-800'
+                          : 'border-dashed border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900/50'
+                      }`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl p-2 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-xs">
+                            {doc.icon}
+                          </span>
+                          <div>
+                            <p className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
+                              {doc.label}
+                            </p>
+                            <p className="text-[11px] text-stone-400">
+                              {doc.desc} • PDF, Word, JPG, PNG (Max 25MB)
+                            </p>
+                            {uploaded && (
+                              <div className="flex items-center gap-2 mt-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
+                                <CheckCircle2 size={13} className="text-emerald-600" />
+                                <span className="truncate max-w-[200px] sm:max-w-xs">
+                                  {uploaded.name || `${doc.key.toUpperCase()} Uploaded`}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                          {uploaded ? (
+                            <>
+                              {uploaded.url && (
+                                <a
+                                  href={uploaded.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="btn-outline text-xs font-bold py-1.5 px-2.5 flex items-center gap-1 text-emerald-700 hover:text-emerald-800 border-emerald-300"
+                                  title="View document"
+                                >
+                                  <ExternalLink size={12} />
+                                  <span>View</span>
+                                </a>
+                              )}
+                              <label className="btn-secondary text-xs font-bold py-1.5 px-3 cursor-pointer">
+                                <span>Replace</span>
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
+                                  onChange={(e) => handleFileUpload(doc.key, e)}
+                                  disabled={isUploading}
+                                />
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveDoc(doc.key)}
+                                className="p-1.5 rounded-lg text-stone-400 hover:text-rose-600 transition-colors"
+                                title="Remove file"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
+                          ) : (
+                            <label className="btn-secondary text-xs font-bold py-1.5 px-3.5 cursor-pointer flex items-center gap-1.5">
+                              {isUploading ? (
+                                <>
+                                  <Loader2 size={13} className="animate-spin text-emerald-600" />
+                                  <span>Uploading...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Upload size={13} className="text-emerald-600" />
+                                  <span>Upload File</span>
+                                </>
+                              )}
+                              <input
+                                type="file"
+                                className="hidden"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
+                                onChange={(e) => handleFileUpload(doc.key, e)}
+                                disabled={isUploading}
+                              />
+                            </label>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <label className="btn-secondary text-xs font-bold py-1.5 px-3 cursor-pointer">
-                      <Upload size={13} className="inline mr-1 text-emerald-600" />
-                      <span>Upload</span>
-                      <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" />
-                    </label>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/70 text-xs text-emerald-800 dark:text-emerald-300 flex items-start gap-3">
                 <CheckCircle2 size={18} className="text-emerald-600 shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
-                  KaamConnect promises strict privacy. Your government documents are used exclusively for verification and are never shared publicly.
+                  KaamConnect promises strict privacy. Your government documents, resumes, and identification files are encrypted and used exclusively for background verification.
                 </p>
               </div>
             </div>
@@ -364,6 +562,7 @@ export default function WorkerOnboarding() {
           <div className="flex gap-3 mt-8 pt-5 border-t border-stone-100 dark:border-stone-800">
             {step > 0 && (
               <button
+                type="button"
                 onClick={() => setStep(s => s - 1)}
                 className="btn-outline flex-1 text-xs font-bold py-2.5"
               >
@@ -372,6 +571,7 @@ export default function WorkerOnboarding() {
             )}
             {step < STEPS.length - 1 ? (
               <button
+                type="button"
                 onClick={() => setStep(s => s + 1)}
                 className="btn-primary flex-1 text-xs font-bold py-2.5 flex items-center justify-center gap-2"
               >
@@ -380,6 +580,7 @@ export default function WorkerOnboarding() {
               </button>
             ) : (
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={loading}
                 className="btn-primary flex-1 text-xs font-bold py-3 flex items-center justify-center gap-2"
