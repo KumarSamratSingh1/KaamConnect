@@ -12,7 +12,9 @@ const register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: errors.array()[0].msg });
     }
 
-    const { name, email, phone, password, role } = req.body;
+    let { name, email, phone, password, role } = req.body;
+    email = email ? email.toLowerCase().trim() : '';
+    phone = phone ? phone.trim() : '';
 
     // Check existing
     const existing = await User.findOne({ $or: [{ email }, { phone }] });
@@ -59,7 +61,8 @@ const login = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Email and password required.' });
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }

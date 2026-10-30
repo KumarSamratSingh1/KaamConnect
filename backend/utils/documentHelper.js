@@ -56,3 +56,4 @@ const enrichWorkerDocuments = (profile) => {
 };
 
 module.exports = { enrichDocument, enrichWorkerDocuments };
+
