@@ -491,7 +491,7 @@ export default function WorkerOnboarding() {
                             <>
                               {uploaded.url && (
                                 <a
-                                  href={uploaded.url}
+                                  href={uploaded.viewUrl || uploaded.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="btn-outline text-xs font-bold py-1.5 px-2.5 flex items-center gap-1 text-emerald-700 hover:text-emerald-800 border-emerald-300"

@@ -1,6 +1,9 @@
 const User = require('../models/User');
 const WorkerProfile = require('../models/WorkerProfile');
 const { Review } = require('../models/index');
+const { enrichDocument, enrichWorkerDocuments } = require('../utils/documentHelper');
+const { cloudinary } = require('../config/cloudinary');
+const https = require('https');
 
 // @desc Get all workers with filters
 // @route GET /api/workers
@@ -95,9 +98,11 @@ const getWorker = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(10);
 
+    const enrichedProfile = profile ? enrichWorkerDocuments(profile) : null;
+
     return res.json({
       success: true,
-      data: { worker, profile, reviews }
+      data: { worker, profile: enrichedProfile, reviews }
     });
   } catch (error) {
     next(error);
@@ -112,7 +117,8 @@ const getMyProfile = async (req, res, next) => {
     if (!profile) {
       profile = await WorkerProfile.create({ user: req.user._id });
     }
-    return res.json({ success: true, data: profile });
+    const enriched = enrichWorkerDocuments(profile);
+    return res.json({ success: true, data: enriched });
   } catch (error) {
     next(error);
   }
@@ -154,7 +160,8 @@ const updateProfile = async (req, res, next) => {
     }
     await profile.save();
 
-    return res.json({ success: true, message: 'Profile updated!', data: profile });
+    const enriched = enrichWorkerDocuments(profile);
+    return res.json({ success: true, message: 'Profile updated!', data: enriched });
   } catch (error) {
     next(error);
   }
@@ -220,6 +227,8 @@ const uploadDocument = async (req, res, next) => {
     const originalName = req.file.originalname || 'Document';
     const fileUrl = req.file.path || req.file.secure_url || req.file.url;
     const publicId = req.file.filename || req.file.public_id || ('doc_' + Date.now());
+    const ext = (originalName.split('.').pop() || '').toLowerCase();
+    const isRaw = ['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(ext);
 
     if (!profile.documents) {
       profile.documents = [];
@@ -230,6 +239,7 @@ const uploadDocument = async (req, res, next) => {
       url: fileUrl,
       publicId: publicId,
       name: originalName,
+      isRaw: isRaw,
       uploadedAt: new Date()
     };
 
@@ -246,12 +256,15 @@ const uploadDocument = async (req, res, next) => {
     }
     await profile.save();
 
+    const enrichedDoc = enrichDocument(docData, req.user._id);
+    const enrichedDocs = profile.documents.map(d => enrichDocument(d, req.user._id));
+
     return res.json({
       success: true,
       message: `${originalName} uploaded successfully and submitted for review!`,
       data: {
-        document: docData,
-        documents: profile.documents,
+        document: enrichedDoc,
+        documents: enrichedDocs,
         profileCompletion: profile.profileCompletion
       }
     });
@@ -276,10 +289,77 @@ const deleteDocument = async (req, res, next) => {
     }
     await profile.save();
 
+    const enrichedDocs = profile.documents.map(d => enrichDocument(d, req.user._id));
     return res.json({
       success: true,
       message: 'Document removed.',
-      data: { documents: profile.documents }
+      data: { documents: enrichedDocs }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc Securely view / stream worker verification document
+// @route GET /api/workers/document/view/:userId/:docId
+const viewDocument = async (req, res, next) => {
+  try {
+    const { userId, docId } = req.params;
+
+    // Check authorization: must be admin or the worker themselves
+    if (req.user.role !== 'admin' && req.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: 'Not authorized to view this document.' });
+    }
+
+    const profile = await WorkerProfile.findOne({ user: userId });
+    if (!profile || !profile.documents || profile.documents.length === 0) {
+      return res.status(404).json({ success: false, message: 'Document or profile not found.' });
+    }
+
+    const doc = profile.documents.find(d =>
+      (d._id && d._id.toString() === docId) ||
+      (d.type && d.type.toLowerCase() === docId.toLowerCase())
+    );
+
+    if (!doc || !doc.publicId) {
+      return res.status(404).json({ success: false, message: 'Document not found.' });
+    }
+
+    const ext = (doc.name || doc.url || doc.publicId || '').split('.').pop().toLowerCase();
+    const isRaw = ['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(ext);
+    const resourceType = isRaw ? 'raw' : 'image';
+
+    const privateUrl = cloudinary.utils.private_download_url(doc.publicId, '', {
+      resource_type: resourceType,
+      type: 'upload',
+      expires_at: Math.floor(Date.now() / 1000) + 7200
+    });
+
+    const mimeMap = {
+      pdf: 'application/pdf',
+      doc: 'application/msword',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp'
+    };
+    const contentType = mimeMap[ext] || (isRaw ? 'application/octet-stream' : 'image/jpeg');
+    const safeFilename = (doc.name || `${doc.type || 'document'}.${ext}`).replace(/[^a-zA-Z0-9._-]/g, '_');
+
+    https.get(privateUrl, (cldRes) => {
+      if (cldRes.statusCode >= 400) {
+        return res.redirect(privateUrl);
+      }
+      res.writeHead(cldRes.statusCode || 200, {
+        'Content-Type': contentType,
+        'Content-Disposition': `inline; filename="${safeFilename}"`,
+        'Cache-Control': 'private, max-age=3600'
+      });
+      cldRes.pipe(res);
+    }).on('error', (err) => {
+      console.error('Error streaming document:', err);
+      res.redirect(privateUrl);
     });
   } catch (error) {
     next(error);
@@ -315,5 +395,6 @@ module.exports = {
   uploadPhoto,
   uploadDocument,
   deleteDocument,
+  viewDocument,
   getFeatured
 };

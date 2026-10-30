@@ -9,6 +9,7 @@ const {
   uploadPhoto,
   uploadDocument,
   deleteDocument,
+  viewDocument,
   getFeatured
 } = require('../controllers/workerController');
 const { protect, authorize } = require('../middleware/auth');
@@ -17,6 +18,7 @@ const { uploadProfile, uploadDocument: uploadDoc } = require('../config/cloudina
 router.get('/', getWorkers);
 router.get('/featured', getFeatured);
 router.get('/my/profile', protect, authorize('worker'), getMyProfile);
+router.get('/document/view/:userId/:docId', protect, viewDocument);
 router.get('/:id', getWorker);
 
 router.put('/profile', protect, authorize('worker'), updateProfile);

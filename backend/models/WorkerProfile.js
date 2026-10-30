@@ -49,6 +49,8 @@ const workerProfileSchema = new mongoose.Schema({
     type: { type: String },
     url: String,
     publicId: String,
+    name: String,
+    isRaw: Boolean,
     uploadedAt: { type: Date, default: Date.now }
   }],
   aadhaarNumber: { type: String, select: false },

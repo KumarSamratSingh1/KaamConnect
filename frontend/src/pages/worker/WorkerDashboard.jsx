@@ -148,7 +148,7 @@ export default function WorkerDashboard() {
                   {profile.documents.map((d, idx) => (
                     <a
                       key={idx}
-                      href={d.url}
+                      href={d.viewUrl || d.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline font-semibold"

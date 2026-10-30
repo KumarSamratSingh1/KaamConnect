@@ -2,6 +2,7 @@ const User = require('../models/User');
 const WorkerProfile = require('../models/WorkerProfile');
 const Booking = require('../models/Booking');
 const { Review } = require('../models/index');
+const { enrichWorkerDocuments } = require('../utils/documentHelper');
 
 // @desc Dashboard stats
 // @route GET /api/admin/stats
@@ -135,7 +136,8 @@ const verifyWorker = async (req, res, next) => {
     }
     await profile.save();
 
-    return res.json({ success: true, message: `Worker ${status}.`, data: profile });
+    const enriched = enrichWorkerDocuments(profile);
+    return res.json({ success: true, message: `Worker ${status}.`, data: enriched });
   } catch (error) {
     next(error);
   }
@@ -175,10 +177,18 @@ const getPendingVerifications = async (req, res, next) => {
       .populate('user', 'name email phone createdAt')
       .sort({ createdAt: 1 });
 
-    return res.json({ success: true, data: profiles });
+    const enriched = profiles.map(enrichWorkerDocuments);
+    return res.json({ success: true, data: enriched });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { getDashboardStats, getAllUsers, toggleBlock, verifyWorker, getAllBookings, getPendingVerifications };
+module.exports = {
+  getDashboardStats,
+  getAllUsers,
+  toggleBlock,
+  verifyWorker,
+  getAllBookings,
+  getPendingVerifications
+};
